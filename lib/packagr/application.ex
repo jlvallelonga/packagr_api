@@ -11,7 +11,7 @@ defmodule Packagr.Application do
       # Start the Ecto repository
       supervisor(Packagr.Repo, []),
       # Start the endpoint when the application starts
-      supervisor(PackagrWeb.Endpoint, []),
+      supervisor(PackagrWeb.Endpoint, [])
       # Start your own worker by calling: Packagr.Worker.start_link(arg1, arg2, arg3)
       # worker(Packagr.Worker, [arg1, arg2, arg3]),
     ]

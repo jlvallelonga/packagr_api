@@ -1,26 +1,13 @@
 defmodule PackagrWeb.Router do
   use PackagrWeb, :router
 
-  pipeline :browser do
-    plug :accepts, ["html"]
-    plug :fetch_session
-    plug :fetch_flash
-    plug :protect_from_forgery
-    plug :put_secure_browser_headers
-  end
-
   pipeline :api do
-    plug :accepts, ["json"]
+    plug(:accepts, ["json"])
   end
 
-  scope "/", PackagrWeb do
-    pipe_through :browser # Use the default browser stack
+  scope "/api", PackagrWeb do
+    pipe_through(:api)
 
-    get "/", PageController, :index
+    resources("/packages", PackageController, only: [:create])
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", PackagrWeb do
-  #   pipe_through :api
-  # end
 end
