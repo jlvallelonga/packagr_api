@@ -22,6 +22,7 @@ defmodule Packagr.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import Packagr.DataCase
+      import Packagr.Factory
     end
   end
 

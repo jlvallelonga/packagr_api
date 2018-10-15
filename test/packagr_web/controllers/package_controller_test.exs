@@ -31,7 +31,7 @@ defmodule PackagrWeb.PackageControllerTest do
       package_upload = %Plug.Upload{path: "temp/package.tar.gz", filename: "package.tar.gz"}
 
       conn = post(conn, package_path(conn, :create), package: package_upload)
-      assert resp = %{} = json_response(conn, 201)["data"]
+      assert resp = %{} = json_response(conn, 201)["package"]
 
       assert resp |> Map.get("id") |> is_integer
       assert resp |> Map.get("name") == package_name
@@ -43,6 +43,37 @@ defmodule PackagrWeb.PackageControllerTest do
       package_upload = %Plug.Upload{path: "temp/foo.txt", filename: "foo.txt"}
       conn = post(conn, package_path(conn, :create), package: package_upload)
       assert %{"error" => "invalid file data"} = json_response(conn, 422)
+    end
+  end
+
+  describe "get package" do
+    setup %{conn: conn} do
+      insert(:package, %{name: "example", version: "0.0.1"})
+      insert(:package, %{name: "example", version: "0.0.2"})
+
+      {:ok, %{conn: conn}}
+    end
+
+    test "renders latest package information when version isn't present", %{conn: conn} do
+      conn = get(conn, package_path(conn, :get_package, "example"))
+
+      assert resp = %{} = json_response(conn, 200)["package"]
+
+      assert resp |> Map.get("id") |> is_integer
+      assert resp |> Map.get("name") == "example"
+      assert resp |> Map.get("version") == "0.0.2"
+    end
+
+    test "renders package information for specified version when version is present", %{
+      conn: conn
+    } do
+      conn = get(conn, package_path(conn, :get_package, "example"), version: "0.0.1")
+
+      assert resp = %{} = json_response(conn, 200)["package"]
+
+      assert resp |> Map.get("id") |> is_integer
+      assert resp |> Map.get("name") == "example"
+      assert resp |> Map.get("version") == "0.0.1"
     end
   end
 end

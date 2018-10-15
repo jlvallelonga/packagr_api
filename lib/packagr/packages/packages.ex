@@ -9,6 +9,47 @@ defmodule Packagr.Packages do
   alias Packagr.Packages.Package
 
   @doc """
+  gets a specific version of the package with the given name
+
+  ## Examples
+
+      iex> get_packate(package_name, package_version)
+      %Package{}
+
+      iex> get_package(non_existing_package_name, some_version)
+      nil
+
+  """
+  def get_package(package_name, package_version) do
+    from(p in Package,
+      where: p.name == ^package_name,
+      where: p.version == ^package_version
+    )
+    |> Repo.one()
+  end
+
+  @doc """
+  gets a package by name
+
+  ## Examples
+
+      iex> get_packate(package_name)
+      %Package{}
+
+      iex> get_package(non_existing_package_name)
+      nil
+
+  """
+  def get_package(package_name) do
+    from(p in Package,
+      where: p.name == ^package_name,
+      order_by: [desc: p.version],
+      limit: 1
+    )
+    |> Repo.one()
+  end
+
+  @doc """
   Creates a package.
 
   ## Examples

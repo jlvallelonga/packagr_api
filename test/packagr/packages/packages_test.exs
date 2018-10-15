@@ -2,6 +2,7 @@ defmodule Packagr.PackagesTest do
   use Packagr.DataCase
 
   alias Packagr.Packages
+  alias Packagr.Packages.Package
 
   setup_all do
     on_exit(fn ->
@@ -9,9 +10,7 @@ defmodule Packagr.PackagesTest do
     end)
   end
 
-  describe "packages" do
-    alias Packagr.Packages.Package
-
+  describe "create_package" do
     setup do
       File.rm_rf("temp/")
       File.mkdir("temp/")
@@ -35,13 +34,13 @@ defmodule Packagr.PackagesTest do
       assert {:error, :enoent} = Packages.create_package("temp/does-not-exist.tar.gz")
     end
 
-    test "create_package/1 with a text file instead of a gzipped tarball" do
+    test "create_package/1 with a text file instead of a gzipped tarball returns error" do
       File.write("temp/foo.txt", "some text")
 
       assert {:error, :eof} = Packages.create_package("temp/foo.txt")
     end
 
-    test "create_package/1 with archive that doesn't include packagr.yml file" do
+    test "create_package/1 with archive that doesn't include packagr.yml file returns error" do
       files = [
         {'example/example.js', "console.log(\"this is an example package\");\n"},
         {'example/something.txt', "name: example\nversion: 0.0.1\n"}
@@ -52,7 +51,7 @@ defmodule Packagr.PackagesTest do
       assert {:error, :missing_packagr_file} = Packages.create_package("temp/package.tar.gz")
     end
 
-    test "create_package/1 with packagr.yml file that doesn't include name or version" do
+    test "create_package/1 with packagr.yml file that doesn't include name or version returns error" do
       files = [
         {'example/example.js', "console.log(\"this is an example package\");\n"},
         {'example/packagr.yml', "foo: example\nbar: 0.0.1\n"}
@@ -61,6 +60,42 @@ defmodule Packagr.PackagesTest do
       :erl_tar.create("temp/package.tar.gz", files, [:compressed])
 
       assert {:error, :missing_file_data} = Packages.create_package("temp/package.tar.gz")
+    end
+  end
+
+  describe "get_package" do
+    setup do
+      package_name = "example"
+      insert(:package, %{name: package_name, version: "0.0.1"})
+      insert(:package, %{name: package_name, version: "0.0.2"})
+
+      {:ok, %{package_name: package_name}}
+    end
+
+    test "get_package/1 returns the latest version of the package with the given name", %{
+      package_name: package_name
+    } do
+      package = Packages.get_package(package_name)
+      assert package.name == package_name
+      assert package.version == "0.0.2"
+    end
+
+    test "get_package/2 returns the specified version of the package with the given name", %{
+      package_name: package_name
+    } do
+      package = Packages.get_package(package_name, "0.0.1")
+      assert package.name == package_name
+      assert package.version == "0.0.1"
+    end
+
+    test "get_package/1 returns nil when a package_name is given that doesn't match any existing packages" do
+      package = Packages.get_package("non-existing-package-name")
+      assert package == nil
+    end
+
+    test "get_package/2 returns nil when a package_name is given that doesn't match any existing packages" do
+      package = Packages.get_package("non-existing-package-name", "0.0.1")
+      assert package == nil
     end
   end
 end

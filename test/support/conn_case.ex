@@ -20,6 +20,7 @@ defmodule PackagrWeb.ConnCase do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
       import PackagrWeb.Router.Helpers
+      import Packagr.Factory
 
       # The default endpoint for testing
       @endpoint PackagrWeb.Endpoint

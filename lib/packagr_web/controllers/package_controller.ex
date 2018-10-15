@@ -12,10 +12,30 @@ defmodule PackagrWeb.PackageController do
       |> put_status(:created)
       |> render("show.json", package: package)
     else
-      {_, message} ->
+      _ ->
         conn
         |> put_status(:unprocessable_entity)
         |> json(%{error: "invalid file data"})
     end
+  end
+
+  def get_package(conn, %{"package_name" => package_name, "version" => package_version}) do
+    package = Packages.get_package(package_name, package_version)
+    render_package(conn, package)
+  end
+
+  def get_package(conn, %{"package_name" => package_name}) do
+    package = Packages.get_package(package_name)
+    render_package(conn, package)
+  end
+
+  defp render_package(conn, package = %Package{}) do
+    render(conn, "show.json", package: package)
+  end
+
+  defp render_package(conn, _) do
+    conn
+    |> put_status(:not_found)
+    |> json(%{error: "package not found"})
   end
 end
