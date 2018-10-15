@@ -48,8 +48,8 @@ defmodule PackagrWeb.PackageControllerTest do
 
   describe "get package" do
     setup %{conn: conn} do
-      insert(:package, %{name: "example", version: "0.0.1"})
-      insert(:package, %{name: "example", version: "0.0.2"})
+      insert(:package, %{name: "example", version: "0.0.1", compressed_package: "gzipped data"})
+      insert(:package, %{name: "example", version: "0.0.2", compressed_package: "gzipped data"})
 
       {:ok, %{conn: conn}}
     end
@@ -74,6 +74,19 @@ defmodule PackagrWeb.PackageControllerTest do
       assert resp |> Map.get("id") |> is_integer
       assert resp |> Map.get("name") == "example"
       assert resp |> Map.get("version") == "0.0.1"
+    end
+
+    test "sends package file when download is specified as true in the request params", %{
+      conn: conn
+    } do
+      conn =
+        get(conn, package_path(conn, :get_package, "example"), version: "0.0.1", download: "true")
+
+      assert response(conn, 200) == "gzipped data"
+      assert response_content_type(conn, :gzip) == "application/gzip"
+
+      assert Plug.Conn.get_resp_header(conn, "content-disposition") ==
+               ["attachment; filename=\"example.tar.gz\""]
     end
   end
 end

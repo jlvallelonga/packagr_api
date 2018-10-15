@@ -29,6 +29,14 @@ defmodule PackagrWeb.PackageController do
     render_package(conn, package)
   end
 
+  defp render_package(
+         conn = %Plug.Conn{params: %{"download" => "true"}},
+         package = %Package{}
+       ) do
+    conn
+    |> send_download({:binary, package.compressed_package}, filename: package.name <> ".tar.gz")
+  end
+
   defp render_package(conn, package = %Package{}) do
     render(conn, "show.json", package: package)
   end
