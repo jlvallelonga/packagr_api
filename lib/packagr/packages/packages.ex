@@ -22,6 +22,22 @@ defmodule Packagr.Packages do
   end
 
   @doc """
+  returns all packages that have a name that includes the given query
+
+  ## Examples
+
+      iex> search_packages("foo")
+      [%Package{name: "foo", ...}]
+
+  """
+  def search_packages(query) do
+    from(p in Package,
+      where: like(p.name, ^"%#{query}%")
+    )
+    |> Repo.all()
+  end
+
+  @doc """
   gets a specific version of the package with the given name
 
   ## Examples

@@ -101,10 +101,22 @@ defmodule PackagrWeb.PackageControllerTest do
     test "renders all packages", %{conn: conn} do
       conn = get(conn, package_path(conn, :index))
 
-      assert resp = json_response(conn, 200)["packages"]
+      assert packages = json_response(conn, 200)["packages"]
 
-      assert Enum.all?(resp, fn
+      assert Enum.all?(packages, fn
                %{"id" => id, "name" => _name, "version" => _version} when is_integer(id) -> true
+               _ -> false
+             end)
+    end
+
+    test "renders matching packages when a query is given", %{conn: conn} do
+      insert(:package, %{name: "foo"})
+      conn = get(conn, package_path(conn, :index), query: "example")
+
+      assert packages = json_response(conn, 200)["packages"]
+
+      assert Enum.all?(packages, fn
+               %{"name" => name} -> name == "example"
                _ -> false
              end)
     end

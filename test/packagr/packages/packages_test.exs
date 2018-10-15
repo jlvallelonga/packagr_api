@@ -82,6 +82,26 @@ defmodule Packagr.PackagesTest do
     end
   end
 
+  describe "search_packages" do
+    setup do
+      insert(:package, %{name: "example"})
+      insert(:package, %{name: "example"})
+      {:ok, %{}}
+    end
+
+    test "search_packages/1 returns a list of packages with names that match the search query" do
+      insert(:package, %{name: "foo"})
+      packages = Packages.search_packages("example")
+
+      refute packages == []
+
+      assert Enum.all?(packages, fn
+               %Package{name: name} -> name == "example"
+               _ -> false
+             end)
+    end
+  end
+
   describe "get_package" do
     setup do
       package_name = "example"

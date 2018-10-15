@@ -19,6 +19,11 @@ defmodule PackagrWeb.PackageController do
     end
   end
 
+  def index(conn, %{"query" => query}) do
+    packages = Packages.search_packages(query)
+    render(conn, "index.json", packages: packages)
+  end
+
   def index(conn, _params) do
     packages = Packages.list_packages()
     render(conn, "index.json", packages: packages)
