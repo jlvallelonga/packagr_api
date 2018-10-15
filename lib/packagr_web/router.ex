@@ -3,6 +3,7 @@ defmodule PackagrWeb.Router do
 
   pipeline :api do
     plug(:accepts, ["json"])
+    plug(Packagr.Authenticate)
   end
 
   scope "/api", PackagrWeb do

@@ -34,6 +34,12 @@ defmodule PackagrWeb.ConnCase do
       Ecto.Adapters.SQL.Sandbox.mode(Packagr.Repo, {:shared, self()})
     end
 
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    authed_conn = Phoenix.ConnTest.build_conn()
+    |> Plug.Conn.put_req_header("x-auth-user", "foo")
+    |> Plug.Conn.put_req_header("x-auth-password", "bar")
+
+    unauthed_conn = Phoenix.ConnTest.build_conn()
+
+    {:ok, conn: authed_conn, unauthed_conn: unauthed_conn}
   end
 end

@@ -17,6 +17,14 @@ defmodule PackagrWeb.PackageControllerTest do
       File.mkdir("temp/")
     end
 
+    test "unauthed returns error", %{unauthed_conn: conn} do
+      File.write("temp/foo.txt", "some text")
+      package_upload = %Plug.Upload{path: "temp/foo.txt", filename: "foo.txt"}
+
+      conn = post(conn, package_path(conn, :create), package: package_upload)
+      assert %{"error" => "forbidden"} = json_response(conn, 403)
+    end
+
     test "renders package when data is valid", %{conn: conn} do
       package_name = "example"
       package_version = "0.0.1"
@@ -52,6 +60,11 @@ defmodule PackagrWeb.PackageControllerTest do
       insert(:package, %{name: "example", version: "0.0.2", compressed_package: "gzipped data"})
 
       {:ok, %{conn: conn}}
+    end
+
+    test "unauthed returns error", %{unauthed_conn: conn} do
+      conn = get(conn, package_path(conn, :get_package, "example"))
+      assert %{"error" => "forbidden"} = json_response(conn, 403)
     end
 
     test "renders latest package information when version isn't present", %{conn: conn} do
@@ -96,6 +109,11 @@ defmodule PackagrWeb.PackageControllerTest do
       insert(:package, %{name: "example", version: "0.0.2", compressed_package: "gzipped data"})
 
       {:ok, %{conn: conn}}
+    end
+
+    test "unauthed returns error", %{unauthed_conn: conn} do
+      conn = get(conn, package_path(conn, :index))
+      assert %{"error" => "forbidden"} = json_response(conn, 403)
     end
 
     test "renders all packages", %{conn: conn} do
