@@ -11,7 +11,7 @@ defmodule PackagrWeb.PackageControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  describe "create package" do
+  describe "create" do
     setup do
       File.rm_rf("temp/")
       File.mkdir("temp/")
@@ -46,7 +46,7 @@ defmodule PackagrWeb.PackageControllerTest do
     end
   end
 
-  describe "get package" do
+  describe "get_package" do
     setup %{conn: conn} do
       insert(:package, %{name: "example", version: "0.0.1", compressed_package: "gzipped data"})
       insert(:package, %{name: "example", version: "0.0.2", compressed_package: "gzipped data"})
@@ -87,6 +87,26 @@ defmodule PackagrWeb.PackageControllerTest do
 
       assert Plug.Conn.get_resp_header(conn, "content-disposition") ==
                ["attachment; filename=\"example.tar.gz\""]
+    end
+  end
+
+  describe "index" do
+    setup %{conn: conn} do
+      insert(:package, %{name: "example", version: "0.0.1", compressed_package: "gzipped data"})
+      insert(:package, %{name: "example", version: "0.0.2", compressed_package: "gzipped data"})
+
+      {:ok, %{conn: conn}}
+    end
+
+    test "renders all packages", %{conn: conn} do
+      conn = get(conn, package_path(conn, :index))
+
+      assert resp = json_response(conn, 200)["packages"]
+
+      assert Enum.all?(resp, fn
+               %{"id" => id, "name" => _name, "version" => _version} when is_integer(id) -> true
+               _ -> false
+             end)
     end
   end
 end

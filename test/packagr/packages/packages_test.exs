@@ -63,6 +63,25 @@ defmodule Packagr.PackagesTest do
     end
   end
 
+  describe "list_packages" do
+    setup do
+      insert(:package)
+      insert(:package)
+      {:ok, %{}}
+    end
+
+    test "list_packages/0 returns a list of all packages" do
+      packages = Packages.list_packages()
+
+      refute packages == []
+
+      assert Enum.all?(packages, fn
+               %Package{id: id} when is_integer(id) -> true
+               _ -> false
+             end)
+    end
+  end
+
   describe "get_package" do
     setup do
       package_name = "example"

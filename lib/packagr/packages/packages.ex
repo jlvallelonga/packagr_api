@@ -9,6 +9,19 @@ defmodule Packagr.Packages do
   alias Packagr.Packages.Package
 
   @doc """
+  lists all packages
+
+  ## Examples
+
+      iex> list_packages()
+      [%Package{}, %Package{}, ...]
+
+  """
+  def list_packages() do
+    Repo.all(Package)
+  end
+
+  @doc """
   gets a specific version of the package with the given name
 
   ## Examples

@@ -8,7 +8,7 @@ defmodule PackagrWeb.Router do
   scope "/api", PackagrWeb do
     pipe_through(:api)
 
-    resources("/packages", PackageController, only: [:create])
+    resources("/packages", PackageController, only: [:create, :index])
     get("/packages/:package_name", PackageController, :get_package)
   end
 end

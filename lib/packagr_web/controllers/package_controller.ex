@@ -19,6 +19,11 @@ defmodule PackagrWeb.PackageController do
     end
   end
 
+  def index(conn, _params) do
+    packages = Packages.list_packages()
+    render(conn, "index.json", packages: packages)
+  end
+
   def get_package(conn, %{"package_name" => package_name, "version" => package_version}) do
     package = Packages.get_package(package_name, package_version)
     render_package(conn, package)
